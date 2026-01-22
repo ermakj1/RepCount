@@ -37,8 +37,12 @@ class WorkoutSession:
             'exercises': self.exercises,
             'start_time': self.start_time
         }
-        with open(self.session_file, 'w') as f:
-            json.dump(data, f, indent=2)
+        try:
+            with open(self.session_file, 'w') as f:
+                json.dump(data, f, indent=2)
+        except IOError as e:
+            print(f"! Warning: Could not save session: {e}")
+            print("  Your progress may not be saved.")
     
     def start_workout(self):
         """Start a new workout session."""
@@ -122,8 +126,13 @@ class WorkoutSession:
         }
         history.append(workout_data)
         
-        with open(history_file, 'w') as f:
-            json.dump(history, f, indent=2)
+        try:
+            with open(history_file, 'w') as f:
+                json.dump(history, f, indent=2)
+        except IOError as e:
+            print(f"! Error: Could not save workout to history: {e}")
+            print("  Your workout data may be lost.")
+            return
         
         # Remove current session file
         if os.path.exists(self.session_file):
@@ -197,6 +206,7 @@ def main():
         exercise = sys.argv[2]
         try:
             reps = int(sys.argv[3])
+            # Reps must be positive (at least 1)
             if reps <= 0:
                 print("Error: Reps must be a positive number")
                 return
