@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		1FDCC7FA2F22E4530096D4BC /* RepCount Watch Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 1FDCC7DA2F22E4520096D4BC /* RepCount Watch Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		1FDCC7B02F22E0230096D4BC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,12 +25,50 @@
 			remoteGlobalIDString = 1FDCC7A12F22E0220096D4BC;
 			remoteInfo = RepCount;
 		};
+		1FDCC7E72F22E4530096D4BC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1FDCC79A2F22E0220096D4BC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1FDCC7D92F22E4520096D4BC;
+			remoteInfo = "RepCount Watch Watch App";
+		};
+		1FDCC7F12F22E4530096D4BC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1FDCC79A2F22E0220096D4BC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1FDCC7D92F22E4520096D4BC;
+			remoteInfo = "RepCount Watch Watch App";
+		};
+		1FDCC7F82F22E4530096D4BC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1FDCC79A2F22E0220096D4BC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1FDCC7D92F22E4520096D4BC;
+			remoteInfo = "RepCount Watch Watch App";
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		1FDCC7FE2F22E4530096D4BC /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				1FDCC7FA2F22E4530096D4BC /* RepCount Watch Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		1FDCC7A22F22E0220096D4BC /* RepCount.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RepCount.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FDCC7AF2F22E0230096D4BC /* RepCountTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RepCountTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FDCC7B92F22E0230096D4BC /* RepCountUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RepCountUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1FDCC7DA2F22E4520096D4BC /* RepCount Watch Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "RepCount Watch Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1FDCC7E62F22E4530096D4BC /* RepCount Watch Watch AppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "RepCount Watch Watch AppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1FDCC7F02F22E4530096D4BC /* RepCount Watch Watch AppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "RepCount Watch Watch AppUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -43,6 +85,21 @@
 		1FDCC7BC2F22E0230096D4BC /* RepCountUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = RepCountUITests;
+			sourceTree = "<group>";
+		};
+		1FDCC7DB2F22E4520096D4BC /* RepCount Watch Watch App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "RepCount Watch Watch App";
+			sourceTree = "<group>";
+		};
+		1FDCC7E92F22E4530096D4BC /* RepCount Watch Watch AppTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "RepCount Watch Watch AppTests";
+			sourceTree = "<group>";
+		};
+		1FDCC7F32F22E4530096D4BC /* RepCount Watch Watch AppUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "RepCount Watch Watch AppUITests";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -69,6 +126,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1FDCC7D72F22E4520096D4BC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1FDCC7E32F22E4530096D4BC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1FDCC7ED2F22E4530096D4BC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -78,6 +156,9 @@
 				1FDCC7A42F22E0220096D4BC /* RepCount */,
 				1FDCC7B22F22E0230096D4BC /* RepCountTests */,
 				1FDCC7BC2F22E0230096D4BC /* RepCountUITests */,
+				1FDCC7DB2F22E4520096D4BC /* RepCount Watch Watch App */,
+				1FDCC7E92F22E4530096D4BC /* RepCount Watch Watch AppTests */,
+				1FDCC7F32F22E4530096D4BC /* RepCount Watch Watch AppUITests */,
 				1FDCC7A32F22E0220096D4BC /* Products */,
 			);
 			sourceTree = "<group>";
@@ -88,6 +169,9 @@
 				1FDCC7A22F22E0220096D4BC /* RepCount.app */,
 				1FDCC7AF2F22E0230096D4BC /* RepCountTests.xctest */,
 				1FDCC7B92F22E0230096D4BC /* RepCountUITests.xctest */,
+				1FDCC7DA2F22E4520096D4BC /* RepCount Watch Watch App.app */,
+				1FDCC7E62F22E4530096D4BC /* RepCount Watch Watch AppTests.xctest */,
+				1FDCC7F02F22E4530096D4BC /* RepCount Watch Watch AppUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -102,10 +186,12 @@
 				1FDCC79E2F22E0220096D4BC /* Sources */,
 				1FDCC79F2F22E0220096D4BC /* Frameworks */,
 				1FDCC7A02F22E0220096D4BC /* Resources */,
+				1FDCC7FE2F22E4530096D4BC /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				1FDCC7F92F22E4530096D4BC /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				1FDCC7A42F22E0220096D4BC /* RepCount */,
@@ -163,6 +249,74 @@
 			productReference = 1FDCC7B92F22E0230096D4BC /* RepCountUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		1FDCC7D92F22E4520096D4BC /* RepCount Watch Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1FDCC7FB2F22E4530096D4BC /* Build configuration list for PBXNativeTarget "RepCount Watch Watch App" */;
+			buildPhases = (
+				1FDCC7D62F22E4520096D4BC /* Sources */,
+				1FDCC7D72F22E4520096D4BC /* Frameworks */,
+				1FDCC7D82F22E4520096D4BC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				1FDCC7DB2F22E4520096D4BC /* RepCount Watch Watch App */,
+			);
+			name = "RepCount Watch Watch App";
+			packageProductDependencies = (
+			);
+			productName = "RepCount Watch Watch App";
+			productReference = 1FDCC7DA2F22E4520096D4BC /* RepCount Watch Watch App.app */;
+			productType = "com.apple.product-type.application";
+		};
+		1FDCC7E52F22E4530096D4BC /* RepCount Watch Watch AppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1FDCC7FF2F22E4530096D4BC /* Build configuration list for PBXNativeTarget "RepCount Watch Watch AppTests" */;
+			buildPhases = (
+				1FDCC7E22F22E4530096D4BC /* Sources */,
+				1FDCC7E32F22E4530096D4BC /* Frameworks */,
+				1FDCC7E42F22E4530096D4BC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1FDCC7E82F22E4530096D4BC /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				1FDCC7E92F22E4530096D4BC /* RepCount Watch Watch AppTests */,
+			);
+			name = "RepCount Watch Watch AppTests";
+			packageProductDependencies = (
+			);
+			productName = "RepCount Watch Watch AppTests";
+			productReference = 1FDCC7E62F22E4530096D4BC /* RepCount Watch Watch AppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		1FDCC7EF2F22E4530096D4BC /* RepCount Watch Watch AppUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1FDCC8022F22E4530096D4BC /* Build configuration list for PBXNativeTarget "RepCount Watch Watch AppUITests" */;
+			buildPhases = (
+				1FDCC7EC2F22E4530096D4BC /* Sources */,
+				1FDCC7ED2F22E4530096D4BC /* Frameworks */,
+				1FDCC7EE2F22E4530096D4BC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1FDCC7F22F22E4530096D4BC /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				1FDCC7F32F22E4530096D4BC /* RepCount Watch Watch AppUITests */,
+			);
+			name = "RepCount Watch Watch AppUITests";
+			packageProductDependencies = (
+			);
+			productName = "RepCount Watch Watch AppUITests";
+			productReference = 1FDCC7F02F22E4530096D4BC /* RepCount Watch Watch AppUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -184,6 +338,17 @@
 						CreatedOnToolsVersion = 26.0;
 						TestTargetID = 1FDCC7A12F22E0220096D4BC;
 					};
+					1FDCC7D92F22E4520096D4BC = {
+						CreatedOnToolsVersion = 26.0;
+					};
+					1FDCC7E52F22E4530096D4BC = {
+						CreatedOnToolsVersion = 26.0;
+						TestTargetID = 1FDCC7D92F22E4520096D4BC;
+					};
+					1FDCC7EF2F22E4530096D4BC = {
+						CreatedOnToolsVersion = 26.0;
+						TestTargetID = 1FDCC7D92F22E4520096D4BC;
+					};
 				};
 			};
 			buildConfigurationList = 1FDCC79D2F22E0220096D4BC /* Build configuration list for PBXProject "RepCount" */;
@@ -203,6 +368,9 @@
 				1FDCC7A12F22E0220096D4BC /* RepCount */,
 				1FDCC7AE2F22E0230096D4BC /* RepCountTests */,
 				1FDCC7B82F22E0230096D4BC /* RepCountUITests */,
+				1FDCC7D92F22E4520096D4BC /* RepCount Watch Watch App */,
+				1FDCC7E52F22E4530096D4BC /* RepCount Watch Watch AppTests */,
+				1FDCC7EF2F22E4530096D4BC /* RepCount Watch Watch AppUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -223,6 +391,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		1FDCC7B72F22E0230096D4BC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1FDCC7D82F22E4520096D4BC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1FDCC7E42F22E4530096D4BC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1FDCC7EE2F22E4530096D4BC /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -253,6 +442,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1FDCC7D62F22E4520096D4BC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1FDCC7E22F22E4530096D4BC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1FDCC7EC2F22E4530096D4BC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -265,6 +475,21 @@
 			isa = PBXTargetDependency;
 			target = 1FDCC7A12F22E0220096D4BC /* RepCount */;
 			targetProxy = 1FDCC7BA2F22E0230096D4BC /* PBXContainerItemProxy */;
+		};
+		1FDCC7E82F22E4530096D4BC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1FDCC7D92F22E4520096D4BC /* RepCount Watch Watch App */;
+			targetProxy = 1FDCC7E72F22E4530096D4BC /* PBXContainerItemProxy */;
+		};
+		1FDCC7F22F22E4530096D4BC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1FDCC7D92F22E4520096D4BC /* RepCount Watch Watch App */;
+			targetProxy = 1FDCC7F12F22E4530096D4BC /* PBXContainerItemProxy */;
+		};
+		1FDCC7F92F22E4530096D4BC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1FDCC7D92F22E4520096D4BC /* RepCount Watch Watch App */;
+			targetProxy = 1FDCC7F82F22E4530096D4BC /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -530,6 +755,156 @@
 			};
 			name = Release;
 		};
+		1FDCC7FC2F22E4530096D4BC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "RepCount Watch";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = Doodle.RepCount;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Doodle.RepCount.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Debug;
+		};
+		1FDCC7FD2F22E4530096D4BC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "RepCount Watch";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = Doodle.RepCount;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Doodle.RepCount.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
+		1FDCC8002F22E4530096D4BC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Doodle.RepCount-Watch-Watch-AppTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RepCount Watch Watch App.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RepCount Watch Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Debug;
+		};
+		1FDCC8012F22E4530096D4BC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Doodle.RepCount-Watch-Watch-AppTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RepCount Watch Watch App.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RepCount Watch Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
+		1FDCC8032F22E4530096D4BC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Doodle.RepCount-Watch-Watch-AppUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = "RepCount Watch Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Debug;
+		};
+		1FDCC8042F22E4530096D4BC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Doodle.RepCount-Watch-Watch-AppUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = "RepCount Watch Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -565,6 +940,33 @@
 			buildConfigurations = (
 				1FDCC7CA2F22E0230096D4BC /* Debug */,
 				1FDCC7CB2F22E0230096D4BC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1FDCC7FB2F22E4530096D4BC /* Build configuration list for PBXNativeTarget "RepCount Watch Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1FDCC7FC2F22E4530096D4BC /* Debug */,
+				1FDCC7FD2F22E4530096D4BC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1FDCC7FF2F22E4530096D4BC /* Build configuration list for PBXNativeTarget "RepCount Watch Watch AppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1FDCC8002F22E4530096D4BC /* Debug */,
+				1FDCC8012F22E4530096D4BC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1FDCC8022F22E4530096D4BC /* Build configuration list for PBXNativeTarget "RepCount Watch Watch AppUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1FDCC8032F22E4530096D4BC /* Debug */,
+				1FDCC8042F22E4530096D4BC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
