@@ -18,6 +18,7 @@ class WorkoutManager: ObservableObject {
     // Setup
     @Published var targetReps: Int = 10
     @Published var restSeconds: Int = 60
+    @Published var targetTotalReps: Int = 100
 
     // Workout state
     @Published var workoutStarted: Bool = false
@@ -46,11 +47,27 @@ class WorkoutManager: ObservableObject {
     private let haptics = UIImpactFeedbackGenerator(style: .medium)
     private let heavyHaptics = UIImpactFeedbackGenerator(style: .heavy)
 
+    // MARK: - Computed
+
+    var completedReps: Int {
+        completedSets.reduce(0) { $0 + $1.reps }
+    }
+
+    var progressPercent: Double {
+        guard targetTotalReps > 0 else { return 0 }
+        return min(1.0, Double(completedReps) / Double(targetTotalReps))
+    }
+
+    var isGoalComplete: Bool {
+        completedReps >= targetTotalReps
+    }
+
     // MARK: - Persistence Keys
 
     private let historyKey = "workoutHistory"
     private let targetRepsKey = "targetReps"
     private let restSecondsKey = "restSeconds"
+    private let targetTotalRepsKey = "targetTotalReps"
 
     // MARK: - Init
 
@@ -229,6 +246,7 @@ class WorkoutManager: ObservableObject {
     private func saveSettings() {
         UserDefaults.standard.set(targetReps, forKey: targetRepsKey)
         UserDefaults.standard.set(restSeconds, forKey: restSecondsKey)
+        UserDefaults.standard.set(targetTotalReps, forKey: targetTotalRepsKey)
     }
 
     private func loadSettings() {
@@ -237,6 +255,9 @@ class WorkoutManager: ObservableObject {
         }
         if UserDefaults.standard.object(forKey: restSecondsKey) != nil {
             restSeconds = UserDefaults.standard.integer(forKey: restSecondsKey)
+        }
+        if UserDefaults.standard.object(forKey: targetTotalRepsKey) != nil {
+            targetTotalReps = UserDefaults.standard.integer(forKey: targetTotalRepsKey)
         }
     }
 
