@@ -47,6 +47,7 @@ class WatchWorkoutManager: ObservableObject {
     // MARK: - Private
 
     private var restTimer: Timer?
+    private var workoutStartTime: Date?
 
     // Persistence keys
     private let targetRepsKey = "watch_targetReps"
@@ -57,6 +58,16 @@ class WatchWorkoutManager: ObservableObject {
 
     init() {
         loadSettings()
+        setupPhoneConnectivity()
+    }
+
+    private func setupPhoneConnectivity() {
+        PhoneConnectivityManager.shared.onSettingsReceived = { [weak self] targetReps, restSeconds, targetTotalReps in
+            self?.targetReps = targetReps
+            self?.restSeconds = restSeconds
+            self?.targetTotalReps = targetTotalReps
+            self?.saveSettings()
+        }
     }
 
     // MARK: - Haptics
@@ -71,6 +82,7 @@ class WatchWorkoutManager: ObservableObject {
         workoutStarted = true
         currentSetNumber = 1
         completedSets = []
+        workoutStartTime = Date()
         saveSettings()
         playHaptic(.start)
     }
@@ -84,9 +96,21 @@ class WatchWorkoutManager: ObservableObject {
     }
 
     func endWorkout() {
+        // Send workout to iPhone if any sets completed
+        if !completedSets.isEmpty, let startTime = workoutStartTime {
+            PhoneConnectivityManager.shared.sendWorkoutToPhone(
+                sets: completedSets,
+                targetReps: targetReps,
+                restSeconds: restSeconds,
+                startTime: startTime,
+                endTime: Date()
+            )
+        }
+
         workoutStarted = false
         currentSetNumber = 1
         completedSets = []
+        workoutStartTime = nil
         stopRestTimer()
         playHaptic(.stop)
     }

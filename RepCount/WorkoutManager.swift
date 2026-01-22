@@ -74,6 +74,32 @@ class WorkoutManager: ObservableObject {
     init() {
         loadHistory()
         loadSettings()
+        setupWatchConnectivity()
+    }
+
+    private func setupWatchConnectivity() {
+        // Initialize connectivity manager
+        _ = WatchConnectivityManager.shared
+
+        // Listen for workouts from Watch
+        NotificationCenter.default.addObserver(
+            forName: .workoutReceivedFromWatch,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            if let session = notification.userInfo?["session"] as? WorkoutSession {
+                self?.workoutHistory.insert(session, at: 0)
+                self?.saveHistory()
+            }
+        }
+    }
+
+    private func syncSettingsToWatch() {
+        WatchConnectivityManager.shared.sendSettingsToWatch(
+            targetReps: targetReps,
+            restSeconds: restSeconds,
+            targetTotalReps: targetTotalReps
+        )
     }
 
     // MARK: - Workout Session
@@ -247,6 +273,9 @@ class WorkoutManager: ObservableObject {
         UserDefaults.standard.set(targetReps, forKey: targetRepsKey)
         UserDefaults.standard.set(restSeconds, forKey: restSecondsKey)
         UserDefaults.standard.set(targetTotalReps, forKey: targetTotalRepsKey)
+
+        // Sync to Watch
+        syncSettingsToWatch()
     }
 
     private func loadSettings() {

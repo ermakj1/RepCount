@@ -191,6 +191,24 @@ struct SetupView: View {
                     }
                 }
 
+                // Sync to Watch button
+                Button {
+                    WatchConnectivityManager.shared.sendSettingsToWatch(
+                        targetReps: manager.targetReps,
+                        restSeconds: manager.restSeconds,
+                        targetTotalReps: manager.targetTotalReps
+                    )
+                } label: {
+                    Label("Sync to Watch", systemImage: "applewatch")
+                        .font(.subheadline)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color.orange)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+                .padding(.horizontal, 24)
+
                 // Start button
                 Button {
                     manager.startWorkout()
@@ -204,7 +222,7 @@ struct SetupView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
                 .padding(.horizontal, 24)
-                .padding(.top, 10)
+                .padding(.top, 6)
                 .padding(.bottom, 30)
             }
         }
