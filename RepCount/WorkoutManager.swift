@@ -15,10 +15,14 @@ class WorkoutManager: ObservableObject {
 
     // MARK: - Published State
 
-    // Current workout
-    @Published var currentSession: WorkoutSession?
-    @Published var currentReps: Int = 0
+    // Setup
+    @Published var targetReps: Int = 10
+    @Published var restSeconds: Int = 60
+
+    // Workout state
+    @Published var workoutStarted: Bool = false
     @Published var currentSetNumber: Int = 1
+    @Published var completedSets: [WorkoutSet] = []
 
     // Rest timer
     @Published var isResting: Bool = false
@@ -38,80 +42,62 @@ class WorkoutManager: ObservableObject {
 
     private var restTimer: Timer?
     private var intervalTimer: Timer?
+    private var workoutStartTime: Date?
     private let haptics = UIImpactFeedbackGenerator(style: .medium)
     private let heavyHaptics = UIImpactFeedbackGenerator(style: .heavy)
 
     // MARK: - Persistence Keys
 
     private let historyKey = "workoutHistory"
+    private let targetRepsKey = "targetReps"
+    private let restSecondsKey = "restSeconds"
 
     // MARK: - Init
 
     init() {
         loadHistory()
-    }
-
-    // MARK: - Rep Counting
-
-    func incrementRep() {
-        currentReps += 1
-        haptics.impactOccurred()
-    }
-
-    func decrementRep() {
-        if currentReps > 0 {
-            currentReps -= 1
-            haptics.impactOccurred()
-        }
-    }
-
-    func resetReps() {
-        currentReps = 0
+        loadSettings()
     }
 
     // MARK: - Workout Session
 
-    func startWorkout(exercise: Exercise) {
-        currentSession = WorkoutSession(exercise: exercise)
-        currentReps = 0
+    func startWorkout() {
+        workoutStarted = true
         currentSetNumber = 1
+        completedSets = []
+        workoutStartTime = Date()
+        saveSettings()
+        heavyHaptics.impactOccurred()
     }
 
-    func completeSet() {
-        guard var session = currentSession else { return }
-
-        let set = WorkoutSet(reps: currentReps)
-        session.sets.append(set)
-        currentSession = session
-
+    func completeSet(reps: Int) {
+        let set = WorkoutSet(reps: reps)
+        completedSets.append(set)
         heavyHaptics.impactOccurred()
 
-        if currentSetNumber < session.exercise.defaultSets {
-            currentSetNumber += 1
-            currentReps = 0
-            startRestTimer(seconds: session.exercise.defaultRestSeconds)
-        } else {
-            finishWorkout()
+        // Start rest timer
+        startRestTimer(seconds: restSeconds)
+    }
+
+    func endWorkout() {
+        // Save to history if any sets completed
+        if !completedSets.isEmpty, let startTime = workoutStartTime {
+            let session = WorkoutSession(
+                exercise: Exercise(name: "Workout", defaultReps: targetReps, defaultSets: completedSets.count, defaultRestSeconds: restSeconds),
+                sets: completedSets,
+                startedAt: startTime,
+                completedAt: Date(),
+                totalRestTime: 0
+            )
+            workoutHistory.insert(session, at: 0)
+            saveHistory()
         }
-    }
 
-    func finishWorkout() {
-        guard var session = currentSession else { return }
-
-        session.completedAt = Date()
-        workoutHistory.insert(session, at: 0)
-        saveHistory()
-
-        currentSession = nil
-        currentReps = 0
+        // Reset state
+        workoutStarted = false
         currentSetNumber = 1
-        stopRestTimer()
-    }
-
-    func cancelWorkout() {
-        currentSession = nil
-        currentReps = 0
-        currentSetNumber = 1
+        completedSets = []
+        workoutStartTime = nil
         stopRestTimer()
     }
 
@@ -132,10 +118,18 @@ class WorkoutManager: ObservableObject {
                     }
                 } else {
                     self.heavyHaptics.impactOccurred()
-                    self.stopRestTimer()
+                    self.restTimerEnded()
                 }
             }
         }
+    }
+
+    private func restTimerEnded() {
+        restTimer?.invalidate()
+        restTimer = nil
+        isResting = false
+        restTimeRemaining = 0
+        currentSetNumber += 1
     }
 
     func stopRestTimer() {
@@ -147,6 +141,15 @@ class WorkoutManager: ObservableObject {
 
     func skipRest() {
         stopRestTimer()
+        currentSetNumber += 1
+    }
+
+    func addRestTime(_ seconds: Int) {
+        restTimeRemaining += seconds
+        // Also increase future rest duration
+        restSeconds += seconds
+        saveSettings()
+        haptics.impactOccurred()
     }
 
     // MARK: - Interval Timer
@@ -208,21 +211,6 @@ class WorkoutManager: ObservableObject {
         currentIntervalPreset = nil
     }
 
-    func pauseIntervalTimer() {
-        intervalTimer?.invalidate()
-        intervalTimer = nil
-    }
-
-    func resumeIntervalTimer() {
-        guard currentIntervalPreset != nil, isIntervalTimerRunning else { return }
-
-        intervalTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                self?.tickIntervalTimer()
-            }
-        }
-    }
-
     // MARK: - Persistence
 
     private func saveHistory() {
@@ -235,6 +223,20 @@ class WorkoutManager: ObservableObject {
         if let data = UserDefaults.standard.data(forKey: historyKey),
            let decoded = try? JSONDecoder().decode([WorkoutSession].self, from: data) {
             workoutHistory = decoded
+        }
+    }
+
+    private func saveSettings() {
+        UserDefaults.standard.set(targetReps, forKey: targetRepsKey)
+        UserDefaults.standard.set(restSeconds, forKey: restSecondsKey)
+    }
+
+    private func loadSettings() {
+        if UserDefaults.standard.object(forKey: targetRepsKey) != nil {
+            targetReps = UserDefaults.standard.integer(forKey: targetRepsKey)
+        }
+        if UserDefaults.standard.object(forKey: restSecondsKey) != nil {
+            restSeconds = UserDefaults.standard.integer(forKey: restSecondsKey)
         }
     }
 

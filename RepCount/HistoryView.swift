@@ -175,7 +175,7 @@ struct WorkoutHistoryRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(session.exercise.name)
+                Text("\(session.sets.count) sets")
                     .font(.headline)
 
                 Spacer()
@@ -186,12 +186,16 @@ struct WorkoutHistoryRow: View {
             }
 
             HStack(spacing: 16) {
-                Label("\(session.sets.count) sets", systemImage: "square.stack")
-                Label("\(session.totalReps) reps", systemImage: "repeat")
+                Label("\(session.totalReps) total reps", systemImage: "repeat")
                 Label(formattedDuration, systemImage: "clock")
             }
             .font(.caption)
             .foregroundStyle(.secondary)
+
+            // Show individual sets
+            Text(setsBreakdown)
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
         }
         .padding(.vertical, 4)
     }
@@ -207,6 +211,10 @@ struct WorkoutHistoryRow: View {
         let mins = Int(session.duration) / 60
         let secs = Int(session.duration) % 60
         return String(format: "%d:%02d", mins, secs)
+    }
+
+    private var setsBreakdown: String {
+        session.sets.map { "\($0.reps)" }.joined(separator: " + ") + " reps"
     }
 }
 

@@ -2,235 +2,335 @@
 //  CounterView.swift
 //  RepCount
 //
-//  Main rep counting interface with tap-to-count
+//  Streamlined rep counter: set target reps, log sets, rest timer
 //
 
 import SwiftUI
 
 struct CounterView: View {
     @EnvironmentObject var manager: WorkoutManager
-    @State private var showExercisePicker = false
-    @State private var pulseScale: CGFloat = 1.0
 
     var body: some View {
         NavigationStack {
             ZStack {
-                // Background gradient
+                // Background
                 LinearGradient(
-                    colors: [Color.blue.opacity(0.3), Color.purple.opacity(0.3)],
+                    colors: [Color.blue.opacity(0.2), Color.purple.opacity(0.2)],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
                 .ignoresSafeArea()
 
-                VStack(spacing: 20) {
-                    // Exercise info
-                    if let session = manager.currentSession {
-                        VStack(spacing: 8) {
-                            Text(session.exercise.name)
-                                .font(.title2)
-                                .fontWeight(.semibold)
-
-                            Text("Set \(manager.currentSetNumber) of \(session.exercise.defaultSets)")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
-                        .padding(.top, 20)
-                    } else {
-                        Text("Tap to Count")
-                            .font(.title2)
-                            .foregroundStyle(.secondary)
-                            .padding(.top, 20)
-                    }
-
-                    Spacer()
-
-                    // Rest timer overlay
+                if manager.workoutStarted {
                     if manager.isResting {
-                        RestTimerOverlay()
+                        RestTimerView()
                     } else {
-                        // Main counter tap area
-                        counterTapArea
+                        ActiveWorkoutView()
                     }
-
-                    Spacer()
-
-                    // Bottom controls
-                    bottomControls
+                } else {
+                    SetupView()
                 }
             }
-            .navigationTitle("Counter")
+            .navigationTitle("RepCount")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showExercisePicker = true
-                    } label: {
-                        Image(systemName: "dumbbell.fill")
-                    }
-                }
-            }
-            .sheet(isPresented: $showExercisePicker) {
-                ExercisePickerView()
-            }
         }
-    }
-
-    // MARK: - Counter Tap Area
-
-    private var counterTapArea: some View {
-        VStack(spacing: 16) {
-            // Rep count display
-            Text("\(manager.currentReps)")
-                .font(.system(size: 120, weight: .bold, design: .rounded))
-                .foregroundStyle(.primary)
-                .scaleEffect(pulseScale)
-
-            Text("reps")
-                .font(.title3)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            manager.incrementRep()
-            withAnimation(.easeOut(duration: 0.1)) {
-                pulseScale = 1.1
-            }
-            withAnimation(.easeIn(duration: 0.1).delay(0.1)) {
-                pulseScale = 1.0
-            }
-        }
-    }
-
-    // MARK: - Bottom Controls
-
-    private var bottomControls: some View {
-        VStack(spacing: 16) {
-            // Adjustment buttons
-            HStack(spacing: 40) {
-                Button {
-                    manager.decrementRep()
-                } label: {
-                    Image(systemName: "minus.circle.fill")
-                        .font(.system(size: 50))
-                        .foregroundStyle(.red.opacity(0.8))
-                }
-
-                Button {
-                    manager.resetReps()
-                } label: {
-                    Image(systemName: "arrow.counterclockwise.circle.fill")
-                        .font(.system(size: 50))
-                        .foregroundStyle(.orange.opacity(0.8))
-                }
-
-                Button {
-                    manager.incrementRep()
-                } label: {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 50))
-                        .foregroundStyle(.green.opacity(0.8))
-                }
-            }
-
-            // Complete set / Start workout button
-            if manager.currentSession != nil {
-                Button {
-                    manager.completeSet()
-                } label: {
-                    Text("Complete Set")
-                        .font(.headline)
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-                .padding(.horizontal)
-            }
-        }
-        .padding(.bottom, 20)
     }
 }
 
-// MARK: - Rest Timer Overlay
+// MARK: - Setup View
 
-struct RestTimerOverlay: View {
+struct SetupView: View {
     @EnvironmentObject var manager: WorkoutManager
 
     var body: some View {
-        VStack(spacing: 20) {
-            Text("REST")
+        VStack(spacing: 40) {
+            Spacer()
+
+            Text("Set Up Your Workout")
+                .font(.title2)
+                .fontWeight(.semibold)
+
+            // Target reps picker
+            VStack(spacing: 8) {
+                Text("Reps per Set")
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
+
+                HStack(spacing: 20) {
+                    Button {
+                        if manager.targetReps > 1 {
+                            manager.targetReps -= 1
+                        }
+                    } label: {
+                        Image(systemName: "minus.circle.fill")
+                            .font(.system(size: 44))
+                            .foregroundStyle(.red.opacity(0.8))
+                    }
+
+                    Text("\(manager.targetReps)")
+                        .font(.system(size: 60, weight: .bold, design: .rounded))
+                        .frame(width: 100)
+
+                    Button {
+                        manager.targetReps += 1
+                    } label: {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.system(size: 44))
+                            .foregroundStyle(.green.opacity(0.8))
+                    }
+                }
+
+                // Quick select buttons
+                HStack(spacing: 12) {
+                    ForEach([5, 10, 12, 15, 20], id: \.self) { num in
+                        Button {
+                            manager.targetReps = num
+                        } label: {
+                            Text("\(num)")
+                                .font(.subheadline.bold())
+                                .foregroundStyle(manager.targetReps == num ? .white : .primary)
+                                .frame(width: 44, height: 36)
+                                .background(manager.targetReps == num ? Color.blue : Color.gray.opacity(0.2))
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                    }
+                }
+            }
+
+            // Rest time picker
+            VStack(spacing: 8) {
+                Text("Rest Between Sets")
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
+
+                HStack(spacing: 20) {
+                    Button {
+                        if manager.restSeconds > 10 {
+                            manager.restSeconds -= 10
+                        }
+                    } label: {
+                        Image(systemName: "minus.circle.fill")
+                            .font(.system(size: 44))
+                            .foregroundStyle(.red.opacity(0.8))
+                    }
+
+                    Text(formatTime(manager.restSeconds))
+                        .font(.system(size: 50, weight: .bold, design: .rounded))
+                        .frame(width: 120)
+
+                    Button {
+                        manager.restSeconds += 10
+                    } label: {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.system(size: 44))
+                            .foregroundStyle(.green.opacity(0.8))
+                    }
+                }
+
+                // Quick select buttons
+                HStack(spacing: 12) {
+                    ForEach([30, 45, 60, 90, 120], id: \.self) { sec in
+                        Button {
+                            manager.restSeconds = sec
+                        } label: {
+                            Text(formatTime(sec))
+                                .font(.subheadline.bold())
+                                .foregroundStyle(manager.restSeconds == sec ? .white : .primary)
+                                .frame(width: 50, height: 36)
+                                .background(manager.restSeconds == sec ? Color.blue : Color.gray.opacity(0.2))
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                    }
+                }
+            }
+
+            Spacer()
+
+            // Start button
+            Button {
+                manager.startWorkout()
+            } label: {
+                Text("Start Workout")
+                    .font(.title3.bold())
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color.green)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+            }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 30)
+        }
+    }
+
+    private func formatTime(_ seconds: Int) -> String {
+        let mins = seconds / 60
+        let secs = seconds % 60
+        if mins > 0 {
+            return String(format: "%d:%02d", mins, secs)
+        } else {
+            return "\(secs)s"
+        }
+    }
+}
+
+// MARK: - Active Workout View
+
+struct ActiveWorkoutView: View {
+    @EnvironmentObject var manager: WorkoutManager
+    @State private var adjustedReps: Int = 0
+
+    var body: some View {
+        VStack(spacing: 30) {
+            // Set counter
+            Text("Set \(manager.currentSetNumber)")
                 .font(.title)
                 .fontWeight(.bold)
+
+            Spacer()
+
+            // Adjusted reps display
+            VStack(spacing: 8) {
+                Text("Reps Completed")
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
+
+                HStack(spacing: 24) {
+                    Button {
+                        if adjustedReps > 0 {
+                            adjustedReps -= 1
+                        }
+                    } label: {
+                        Image(systemName: "minus.circle.fill")
+                            .font(.system(size: 50))
+                            .foregroundStyle(.red.opacity(0.8))
+                    }
+
+                    Text("\(adjustedReps)")
+                        .font(.system(size: 100, weight: .bold, design: .rounded))
+                        .frame(width: 140)
+
+                    Button {
+                        adjustedReps += 1
+                    } label: {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.system(size: 50))
+                            .foregroundStyle(.green.opacity(0.8))
+                    }
+                }
+            }
+
+            Spacer()
+
+            // Quick complete button (target reps)
+            Button {
+                manager.completeSet(reps: manager.targetReps)
+                adjustedReps = manager.targetReps
+            } label: {
+                Text("Done: +\(manager.targetReps) reps")
+                    .font(.title2.bold())
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 18)
+                    .background(Color.blue)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+            }
+            .padding(.horizontal, 24)
+
+            // Submit adjusted reps if different
+            if adjustedReps != manager.targetReps && adjustedReps > 0 {
+                Button {
+                    manager.completeSet(reps: adjustedReps)
+                } label: {
+                    Text("Done: +\(adjustedReps) reps")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(Color.orange)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .padding(.horizontal, 24)
+            }
+
+            // End workout button
+            Button {
+                manager.endWorkout()
+            } label: {
+                Text("End Workout")
+                    .font(.subheadline)
+                    .foregroundStyle(.red)
+            }
+            .padding(.bottom, 20)
+        }
+        .onAppear {
+            adjustedReps = manager.targetReps
+        }
+    }
+}
+
+// MARK: - Rest Timer View
+
+struct RestTimerView: View {
+    @EnvironmentObject var manager: WorkoutManager
+    @State private var pulseScale: CGFloat = 1.0
+
+    var body: some View {
+        VStack(spacing: 30) {
+            Text("REST")
+                .font(.largeTitle)
+                .fontWeight(.black)
                 .foregroundStyle(.orange)
 
+            // Timer display
             Text(manager.formatTime(manager.restTimeRemaining))
-                .font(.system(size: 80, weight: .bold, design: .rounded))
+                .font(.system(size: 100, weight: .bold, design: .rounded))
                 .foregroundStyle(.primary)
+                .scaleEffect(pulseScale)
+                .onChange(of: manager.restTimeRemaining) { oldValue, newValue in
+                    if newValue <= 3 && newValue > 0 {
+                        withAnimation(.easeOut(duration: 0.1)) {
+                            pulseScale = 1.1
+                        }
+                        withAnimation(.easeIn(duration: 0.1).delay(0.1)) {
+                            pulseScale = 1.0
+                        }
+                    }
+                }
 
+            // Next set info
+            Text("Next: Set \(manager.currentSetNumber + 1)")
+                .font(.title3)
+                .foregroundStyle(.secondary)
+
+            Spacer()
+
+            // Add time button (visible when timer is low or done)
+            if manager.restTimeRemaining <= 10 {
+                Button {
+                    manager.addRestTime(10)
+                } label: {
+                    Text("+10 seconds")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 32)
+                        .padding(.vertical, 14)
+                        .background(Color.orange)
+                        .clipShape(Capsule())
+                }
+            }
+
+            // Skip button
             Button {
                 manager.skipRest()
             } label: {
                 Text("Skip Rest")
                     .font(.headline)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 32)
-                    .padding(.vertical, 12)
-                    .background(Color.orange)
-                    .clipShape(Capsule())
+                    .foregroundStyle(.blue)
             }
+            .padding(.bottom, 30)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.black.opacity(0.3))
-    }
-}
-
-// MARK: - Exercise Picker
-
-struct ExercisePickerView: View {
-    @EnvironmentObject var manager: WorkoutManager
-    @Environment(\.dismiss) var dismiss
-
-    var body: some View {
-        NavigationStack {
-            List {
-                Section("Quick Start") {
-                    Button {
-                        manager.cancelWorkout()
-                        dismiss()
-                    } label: {
-                        Label("Free Count (No Exercise)", systemImage: "hand.tap.fill")
-                    }
-                }
-
-                Section("Exercises") {
-                    ForEach(Exercise.presets) { exercise in
-                        Button {
-                            manager.startWorkout(exercise: exercise)
-                            dismiss()
-                        } label: {
-                            HStack {
-                                Text(exercise.name)
-                                Spacer()
-                                Text("\(exercise.defaultSets) x \(exercise.defaultReps)")
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-                    }
-                }
-            }
-            .navigationTitle("Select Exercise")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-            }
-        }
+        .padding(.top, 60)
     }
 }
 
