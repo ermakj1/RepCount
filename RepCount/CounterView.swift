@@ -323,9 +323,14 @@ struct ActiveWorkoutView: View {
                 manager.endWorkout()
             } label: {
                 Text("End Workout")
-                    .font(.subheadline)
-                    .foregroundStyle(.red)
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(Color.red.opacity(0.8))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
             }
+            .padding(.horizontal, 24)
             .padding(.bottom, 20)
         }
         .onAppear {
@@ -411,9 +416,22 @@ struct RestTimerView: View {
                     .font(.headline)
                     .foregroundStyle(.blue)
             }
-            .padding(.bottom, 30)
+
+            // End workout button
+            Button {
+                manager.endWorkout()
+            } label: {
+                Text("End Workout")
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(Color.red.opacity(0.8))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 20)
         }
-        .padding(.top, 60)
     }
 }
 
