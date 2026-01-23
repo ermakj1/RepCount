@@ -24,6 +24,13 @@ class WatchWorkoutManager: ObservableObject {
     @Published var workoutStarted: Bool = false
     @Published var currentSetNumber: Int = 1
     @Published var completedSets: [Int] = []  // Just store rep counts
+    @Published var elapsedSeconds: Int = 0
+
+    // Workout summary (shown after ending)
+    @Published var showingSummary: Bool = false
+    @Published var summaryTotalReps: Int = 0
+    @Published var summaryElapsedTime: Int = 0
+    @Published var summarySetsCompleted: Int = 0
 
     // Rest timer
     @Published var isResting: Bool = false
@@ -47,6 +54,7 @@ class WatchWorkoutManager: ObservableObject {
     // MARK: - Private
 
     private var restTimer: Timer?
+    private var elapsedTimer: Timer?
     private var workoutStartTime: Date?
 
     // Persistence keys
@@ -82,9 +90,25 @@ class WatchWorkoutManager: ObservableObject {
         workoutStarted = true
         currentSetNumber = 1
         completedSets = []
+        elapsedSeconds = 0
         workoutStartTime = Date()
         saveSettings()
         playHaptic(.start)
+        startElapsedTimer()
+    }
+
+    private func startElapsedTimer() {
+        elapsedTimer?.invalidate()
+        elapsedTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                self?.elapsedSeconds += 1
+            }
+        }
+    }
+
+    private func stopElapsedTimer() {
+        elapsedTimer?.invalidate()
+        elapsedTimer = nil
     }
 
     func completeSet(reps: Int) {
@@ -96,6 +120,11 @@ class WatchWorkoutManager: ObservableObject {
     }
 
     func endWorkout() {
+        // Store summary data before resetting
+        summaryTotalReps = completedReps
+        summaryElapsedTime = elapsedSeconds
+        summarySetsCompleted = completedSets.count
+
         // Send workout to iPhone if any sets completed
         if !completedSets.isEmpty, let startTime = workoutStartTime {
             PhoneConnectivityManager.shared.sendWorkoutToPhone(
@@ -107,12 +136,29 @@ class WatchWorkoutManager: ObservableObject {
             )
         }
 
+        // Stop timers
+        stopRestTimer()
+        stopElapsedTimer()
+
+        // Reset workout state
         workoutStarted = false
         currentSetNumber = 1
         completedSets = []
+        elapsedSeconds = 0
         workoutStartTime = nil
-        stopRestTimer()
         playHaptic(.stop)
+
+        // Show summary if any work was done
+        if summaryTotalReps > 0 {
+            showingSummary = true
+        }
+    }
+
+    func dismissSummary() {
+        showingSummary = false
+        summaryTotalReps = 0
+        summaryElapsedTime = 0
+        summarySetsCompleted = 0
     }
 
     // MARK: - Rest Timer

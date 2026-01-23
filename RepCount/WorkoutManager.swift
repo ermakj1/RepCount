@@ -24,6 +24,13 @@ class WorkoutManager: ObservableObject {
     @Published var workoutStarted: Bool = false
     @Published var currentSetNumber: Int = 1
     @Published var completedSets: [WorkoutSet] = []
+    @Published var elapsedSeconds: Int = 0
+
+    // Workout summary (shown after ending)
+    @Published var showingSummary: Bool = false
+    @Published var summaryTotalReps: Int = 0
+    @Published var summaryElapsedTime: Int = 0
+    @Published var summarySetsCompleted: Int = 0
 
     // Rest timer
     @Published var isResting: Bool = false
@@ -43,6 +50,7 @@ class WorkoutManager: ObservableObject {
 
     private var restTimer: Timer?
     private var intervalTimer: Timer?
+    private var elapsedTimer: Timer?
     private var workoutStartTime: Date?
     private let haptics = UIImpactFeedbackGenerator(style: .medium)
     private let heavyHaptics = UIImpactFeedbackGenerator(style: .heavy)
@@ -108,12 +116,30 @@ class WorkoutManager: ObservableObject {
         workoutStarted = true
         currentSetNumber = 1
         completedSets = []
+        elapsedSeconds = 0
         workoutStartTime = Date()
         saveSettings()
         heavyHaptics.impactOccurred()
 
         // Keep screen on during workout
         UIApplication.shared.isIdleTimerDisabled = true
+
+        // Start elapsed time timer
+        startElapsedTimer()
+    }
+
+    private func startElapsedTimer() {
+        elapsedTimer?.invalidate()
+        elapsedTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                self?.elapsedSeconds += 1
+            }
+        }
+    }
+
+    private func stopElapsedTimer() {
+        elapsedTimer?.invalidate()
+        elapsedTimer = nil
     }
 
     func completeSet(reps: Int) {
@@ -126,6 +152,11 @@ class WorkoutManager: ObservableObject {
     }
 
     func endWorkout() {
+        // Store summary data before resetting
+        summaryTotalReps = completedReps
+        summaryElapsedTime = elapsedSeconds
+        summarySetsCompleted = completedSets.count
+
         // Save to history if any sets completed
         if !completedSets.isEmpty, let startTime = workoutStartTime {
             let session = WorkoutSession(
@@ -139,15 +170,31 @@ class WorkoutManager: ObservableObject {
             saveHistory()
         }
 
-        // Reset state
+        // Stop timers
+        stopRestTimer()
+        stopElapsedTimer()
+
+        // Reset workout state
         workoutStarted = false
         currentSetNumber = 1
         completedSets = []
+        elapsedSeconds = 0
         workoutStartTime = nil
-        stopRestTimer()
 
         // Allow screen to sleep again
         UIApplication.shared.isIdleTimerDisabled = false
+
+        // Show summary if any work was done
+        if summaryTotalReps > 0 {
+            showingSummary = true
+        }
+    }
+
+    func dismissSummary() {
+        showingSummary = false
+        summaryTotalReps = 0
+        summaryElapsedTime = 0
+        summarySetsCompleted = 0
     }
 
     // MARK: - Rest Timer

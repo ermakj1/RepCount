@@ -11,7 +11,10 @@ struct ContentView: View {
     @StateObject private var manager = WatchWorkoutManager()
 
     var body: some View {
-        if manager.workoutStarted {
+        if manager.showingSummary {
+            WatchSummaryView()
+                .environmentObject(manager)
+        } else if manager.workoutStarted {
             if manager.isResting {
                 WatchRestView()
                     .environmentObject(manager)
@@ -165,6 +168,15 @@ struct WatchActiveView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 8) {
+                // Elapsed time
+                HStack(spacing: 4) {
+                    Image(systemName: "clock")
+                        .font(.caption2)
+                    Text(manager.formatTime(manager.elapsedSeconds))
+                        .font(.caption.monospacedDigit())
+                }
+                .foregroundStyle(.secondary)
+
                 // Progress
                 Text("\(manager.completedReps)/\(manager.targetTotalReps)")
                     .font(.caption)
@@ -239,6 +251,15 @@ struct WatchRestView: View {
 
     var body: some View {
         VStack(spacing: 8) {
+            // Elapsed time
+            HStack(spacing: 4) {
+                Image(systemName: "clock")
+                    .font(.caption2)
+                Text(manager.formatTime(manager.elapsedSeconds))
+                    .font(.caption.monospacedDigit())
+            }
+            .foregroundStyle(.secondary)
+
             // Progress
             Text("\(manager.completedReps)/\(manager.targetTotalReps)")
                 .font(.caption2)
@@ -285,6 +306,76 @@ struct WatchRestView: View {
             }
             .buttonStyle(.bordered)
             .tint(.red)
+        }
+    }
+}
+
+// MARK: - Summary View
+
+struct WatchSummaryView: View {
+    @EnvironmentObject var manager: WatchWorkoutManager
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 12) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 40))
+                    .foregroundStyle(.green)
+
+                Text("Done!")
+                    .font(.headline)
+
+                // Stats
+                VStack(spacing: 8) {
+                    HStack {
+                        Image(systemName: "flame.fill")
+                            .foregroundStyle(.orange)
+                        Text("\(manager.summaryTotalReps) reps")
+                            .font(.headline)
+                        Spacer()
+                    }
+
+                    HStack {
+                        Image(systemName: "clock.fill")
+                            .foregroundStyle(.blue)
+                        Text(formatElapsedTime(manager.summaryElapsedTime))
+                            .font(.headline)
+                        Spacer()
+                    }
+
+                    HStack {
+                        Image(systemName: "number.circle.fill")
+                            .foregroundStyle(.purple)
+                        Text("\(manager.summarySetsCompleted) sets")
+                            .font(.headline)
+                        Spacer()
+                    }
+                }
+                .padding(.horizontal, 8)
+
+                Button {
+                    manager.dismissSummary()
+                } label: {
+                    Text("Done")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.blue)
+            }
+            .padding(.horizontal, 4)
+        }
+    }
+
+    private func formatElapsedTime(_ seconds: Int) -> String {
+        let hours = seconds / 3600
+        let mins = (seconds % 3600) / 60
+        let secs = seconds % 60
+
+        if hours > 0 {
+            return String(format: "%d:%02d:%02d", hours, mins, secs)
+        } else {
+            return String(format: "%d:%02d", mins, secs)
         }
     }
 }
