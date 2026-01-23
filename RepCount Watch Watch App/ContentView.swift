@@ -42,8 +42,8 @@ struct WatchSetupView: View {
 
                     HStack {
                         Button {
-                            if manager.targetTotalReps > 10 {
-                                manager.targetTotalReps -= 10
+                            if manager.targetTotalReps > 1 {
+                                manager.targetTotalReps -= 1
                             }
                         } label: {
                             Image(systemName: "minus")
@@ -56,7 +56,7 @@ struct WatchSetupView: View {
                             .frame(width: 60)
 
                         Button {
-                            manager.targetTotalReps += 10
+                            manager.targetTotalReps += 1
                         } label: {
                             Image(systemName: "plus")
                         }
@@ -104,8 +104,8 @@ struct WatchSetupView: View {
 
                     HStack {
                         Button {
-                            if manager.restSeconds > 10 {
-                                manager.restSeconds -= 10
+                            if manager.restSeconds > 1 {
+                                manager.restSeconds -= 1
                             }
                         } label: {
                             Image(systemName: "minus")
@@ -118,7 +118,7 @@ struct WatchSetupView: View {
                             .frame(width: 50)
 
                         Button {
-                            manager.restSeconds += 10
+                            manager.restSeconds += 1
                         } label: {
                             Image(systemName: "plus")
                         }

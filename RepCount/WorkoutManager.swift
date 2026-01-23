@@ -111,6 +111,9 @@ class WorkoutManager: ObservableObject {
         workoutStartTime = Date()
         saveSettings()
         heavyHaptics.impactOccurred()
+
+        // Keep screen on during workout
+        UIApplication.shared.isIdleTimerDisabled = true
     }
 
     func completeSet(reps: Int) {
@@ -142,6 +145,9 @@ class WorkoutManager: ObservableObject {
         completedSets = []
         workoutStartTime = nil
         stopRestTimer()
+
+        // Allow screen to sleep again
+        UIApplication.shared.isIdleTimerDisabled = false
     }
 
     // MARK: - Rest Timer

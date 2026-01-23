@@ -58,8 +58,8 @@ struct SetupView: View {
 
                     HStack(spacing: 20) {
                         Button {
-                            if manager.targetTotalReps > 10 {
-                                manager.targetTotalReps -= 10
+                            if manager.targetTotalReps > 1 {
+                                manager.targetTotalReps -= 1
                             }
                         } label: {
                             Image(systemName: "minus.circle.fill")
@@ -72,7 +72,7 @@ struct SetupView: View {
                             .frame(width: 110)
 
                         Button {
-                            manager.targetTotalReps += 10
+                            manager.targetTotalReps += 1
                         } label: {
                             Image(systemName: "plus.circle.fill")
                                 .font(.system(size: 40))
@@ -152,8 +152,8 @@ struct SetupView: View {
 
                     HStack(spacing: 20) {
                         Button {
-                            if manager.restSeconds > 10 {
-                                manager.restSeconds -= 10
+                            if manager.restSeconds > 1 {
+                                manager.restSeconds -= 1
                             }
                         } label: {
                             Image(systemName: "minus.circle.fill")
@@ -166,7 +166,7 @@ struct SetupView: View {
                             .frame(width: 100)
 
                         Button {
-                            manager.restSeconds += 10
+                            manager.restSeconds += 1
                         } label: {
                             Image(systemName: "plus.circle.fill")
                                 .font(.system(size: 40))
