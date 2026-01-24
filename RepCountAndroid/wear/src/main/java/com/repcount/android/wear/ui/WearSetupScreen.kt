@@ -75,7 +75,9 @@ fun WearSetupScreen(
             ) {
                 Text(
                     text = "Start",
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         }

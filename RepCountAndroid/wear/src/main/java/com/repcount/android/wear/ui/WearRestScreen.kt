@@ -6,6 +6,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.material3.Button
@@ -78,7 +79,7 @@ fun WearRestScreen(
                     ),
                     modifier = Modifier.height(32.dp)
                 ) {
-                    Text("+10s", fontSize = 11.sp)
+                    Text("+10s", fontSize = 11.sp, textAlign = TextAlign.Center)
                 }
             }
 
@@ -89,7 +90,7 @@ fun WearRestScreen(
                 ),
                 modifier = Modifier.height(32.dp)
             ) {
-                Text("Skip", fontSize = 11.sp)
+                Text("Skip", fontSize = 11.sp, textAlign = TextAlign.Center)
             }
         }
 
@@ -102,7 +103,7 @@ fun WearRestScreen(
             ),
             modifier = Modifier.height(28.dp)
         ) {
-            Text("End", fontSize = 10.sp)
+            Text("End", fontSize = 10.sp, textAlign = TextAlign.Center)
         }
     }
 }
