@@ -18,6 +18,7 @@ RepCount helps users track workout reps with:
 | iOS | Swift | SwiftUI | iOS 17+ |
 | watchOS | Swift | SwiftUI | watchOS 10+ |
 | Android | Kotlin | Jetpack Compose | API 26 (Android 8.0) |
+| Wear OS | Kotlin | Compose for Wear OS | API 30 (Wear OS 3.0) |
 
 ## Project Structure
 
@@ -40,14 +41,24 @@ RepCount/
 │   └── PhoneConnectivityManager.swift   # Watch-iPhone sync
 │
 └── RepCountAndroid/             # Android app
-    └── app/src/main/java/com/repcount/android/
-        ├── MainActivity.kt      # App entry & navigation
-        ├── WorkoutViewModel.kt  # State management & timers
-        └── ui/screens/
-            ├── SetupScreen.kt
-            ├── ActiveWorkoutScreen.kt
-            ├── RestTimerScreen.kt
-            └── SummaryScreen.kt
+    ├── app/src/main/java/com/repcount/android/
+    │   ├── MainActivity.kt      # App entry & navigation
+    │   ├── WorkoutViewModel.kt  # State management & timers
+    │   └── ui/screens/
+    │       ├── SetupScreen.kt
+    │       ├── ActiveWorkoutScreen.kt
+    │       ├── RestTimerScreen.kt
+    │       └── SummaryScreen.kt
+    │
+    └── wear/src/main/java/com/repcount/android/wear/  # Wear OS app
+        ├── MainActivity.kt          # App entry & navigation
+        ├── WearWorkoutViewModel.kt  # State management & timers
+        └── ui/
+            ├── Theme.kt
+            ├── WearSetupScreen.kt
+            ├── WearActiveScreen.kt
+            ├── WearRestScreen.kt
+            └── WearSummaryScreen.kt
 ```
 
 ## Architecture Patterns
@@ -66,6 +77,13 @@ RepCount/
 - Kotlin Coroutines for async timers
 - `SharedPreferences` for persistence
 - Jetpack Compose for declarative UI
+
+### Wear OS
+- **MVVM** with `ViewModel` + `StateFlow` (same as Android)
+- Compose for Wear OS (`wear.compose.material3`)
+- `ScalingLazyColumn` for scrollable content
+- Optimized for round displays
+- `SharedPreferences` for persistence
 
 ## Data Flow
 
@@ -196,3 +214,10 @@ Uses `WatchConnectivity` framework:
 - Lifecycle ViewModel Compose 2.6.1
 - Coroutines Test 1.7.3 (test)
 - Robolectric 4.11.1 (test)
+
+### Wear OS
+- Wear Compose Material3 1.0.0-alpha24
+- Wear Compose Foundation 1.4.0
+- Wear Compose Navigation 1.4.0
+- Lifecycle ViewModel Compose 2.6.1
+- Material Icons Extended

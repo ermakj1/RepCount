@@ -18,7 +18,8 @@ A cross-platform workout rep counter for iOS, Apple Watch, and Android.
 |----------|--------|----------|
 | iOS | ✅ Complete | `RepCount/` |
 | watchOS | ✅ Complete | `RepCount Watch Watch App/` |
-| Android | ✅ Complete | `RepCountAndroid/` |
+| Android | ✅ Complete | `RepCountAndroid/app/` |
+| Wear OS | ✅ Complete | `RepCountAndroid/wear/` |
 
 ## iOS/watchOS
 
