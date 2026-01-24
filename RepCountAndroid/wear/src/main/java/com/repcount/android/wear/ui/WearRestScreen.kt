@@ -79,7 +79,12 @@ fun WearRestScreen(
                     ),
                     modifier = Modifier.height(32.dp)
                 ) {
-                    Text("+10s", fontSize = 11.sp, textAlign = TextAlign.Center)
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("+10s", fontSize = 11.sp)
+                    }
                 }
             }
 
@@ -90,7 +95,12 @@ fun WearRestScreen(
                 ),
                 modifier = Modifier.height(32.dp)
             ) {
-                Text("Skip", fontSize = 11.sp, textAlign = TextAlign.Center)
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Skip", fontSize = 11.sp)
+                }
             }
         }
 
@@ -103,7 +113,12 @@ fun WearRestScreen(
             ),
             modifier = Modifier.height(28.dp)
         ) {
-            Text("End", fontSize = 10.sp, textAlign = TextAlign.Center)
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("End", fontSize = 10.sp)
+            }
         }
     }
 }

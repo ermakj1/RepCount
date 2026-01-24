@@ -120,12 +120,15 @@ fun WearActiveScreen(
                 ),
                 modifier = Modifier.fillMaxWidth(0.8f)
             ) {
-                Text(
-                    text = "Done +$adjustedReps",
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Done +$adjustedReps",
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
 
@@ -138,12 +141,15 @@ fun WearActiveScreen(
                 ),
                 modifier = Modifier.fillMaxWidth(0.6f)
             ) {
-                Text(
-                    text = "End",
-                    fontSize = 12.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "End",
+                        fontSize = 12.sp
+                    )
+                }
             }
         }
     }

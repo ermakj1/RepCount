@@ -73,12 +73,15 @@ fun WearSetupScreen(
                 ),
                 modifier = Modifier.fillMaxWidth(0.8f)
             ) {
-                Text(
-                    text = "Start",
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Start",
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     }
