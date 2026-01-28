@@ -2,11 +2,14 @@ package com.repcount.android.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -18,7 +21,9 @@ fun ActiveWorkoutScreen(
     state: WorkoutState,
     formatTime: (Int) -> String,
     onCompleteSet: (Int) -> Unit,
-    onEndWorkout: () -> Unit
+    onEndWorkout: () -> Unit,
+    onPause: () -> Unit,
+    onResume: () -> Unit
 ) {
     var adjustedReps by remember { mutableIntStateOf(state.targetReps) }
 
@@ -89,6 +94,27 @@ fun ActiveWorkoutScreen(
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
         )
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Pause/Resume button
+        Button(
+            onClick = { if (state.isPaused) onResume() else onPause() },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (state.isPaused) Color(0xFF4CAF50) else Color.Gray
+            )
+        ) {
+            Icon(
+                imageVector = if (state.isPaused) Icons.Filled.PlayArrow else Icons.Filled.Pause,
+                contentDescription = if (state.isPaused) "Resume" else "Pause",
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = if (state.isPaused) "Resume" else "Pause",
+                fontWeight = FontWeight.Bold
+            )
+        }
+
         Spacer(modifier = Modifier.weight(1f))
 
         // Reps display
@@ -103,10 +129,12 @@ fun ActiveWorkoutScreen(
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.alpha(if (state.isPaused) 0.5f else 1f)
         ) {
             FilledIconButton(
                 onClick = { if (adjustedReps > 0) adjustedReps-- },
+                enabled = !state.isPaused,
                 colors = IconButtonDefaults.filledIconButtonColors(
                     containerColor = Color(0xFFE57373)
                 ),
@@ -124,6 +152,7 @@ fun ActiveWorkoutScreen(
 
             FilledIconButton(
                 onClick = { adjustedReps++ },
+                enabled = !state.isPaused,
                 colors = IconButtonDefaults.filledIconButtonColors(
                     containerColor = Color(0xFF81C784)
                 ),
@@ -141,9 +170,11 @@ fun ActiveWorkoutScreen(
                 onCompleteSet(state.targetReps)
                 adjustedReps = state.targetReps
             },
+            enabled = !state.isPaused,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
+                .height(56.dp)
+                .alpha(if (state.isPaused) 0.5f else 1f),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
         ) {
             Text(
@@ -158,9 +189,11 @@ fun ActiveWorkoutScreen(
             Spacer(modifier = Modifier.height(12.dp))
             Button(
                 onClick = { onCompleteSet(adjustedReps) },
+                enabled = !state.isPaused,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp),
+                    .height(48.dp)
+                    .alpha(if (state.isPaused) 0.5f else 1f),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF9800))
             ) {
                 Text(

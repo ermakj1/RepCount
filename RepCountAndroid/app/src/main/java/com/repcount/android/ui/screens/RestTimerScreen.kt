@@ -2,11 +2,14 @@ package com.repcount.android.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -19,7 +22,9 @@ fun RestTimerScreen(
     formatTime: (Int) -> String,
     onAddRestTime: (Int) -> Unit,
     onSkipRest: () -> Unit,
-    onEndWorkout: () -> Unit
+    onEndWorkout: () -> Unit,
+    onPause: () -> Unit,
+    onResume: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -76,12 +81,12 @@ fun RestTimerScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // REST label
+        // REST/PAUSED label
         Text(
-            text = "REST",
+            text = if (state.isPaused) "PAUSED" else "REST",
             fontSize = 28.sp,
             fontWeight = FontWeight.Black,
-            color = Color(0xFFFF9800)
+            color = if (state.isPaused) Color.Gray else Color(0xFFFF9800)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -90,8 +95,30 @@ fun RestTimerScreen(
         Text(
             text = formatTime(state.restTimeRemaining),
             fontSize = 72.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.alpha(if (state.isPaused) 0.5f else 1f)
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Pause/Resume button
+        Button(
+            onClick = { if (state.isPaused) onResume() else onPause() },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (state.isPaused) Color(0xFF4CAF50) else Color.Gray
+            )
+        ) {
+            Icon(
+                imageVector = if (state.isPaused) Icons.Filled.PlayArrow else Icons.Filled.Pause,
+                contentDescription = if (state.isPaused) "Resume" else "Pause",
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = if (state.isPaused) "Resume" else "Pause",
+                fontWeight = FontWeight.Bold
+            )
+        }
 
         // Next set info
         Text(
@@ -108,8 +135,11 @@ fun RestTimerScreen(
         if (state.restTimeRemaining <= 10) {
             Button(
                 onClick = { onAddRestTime(10) },
+                enabled = !state.isPaused,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF9800)),
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier
+                    .padding(bottom = 16.dp)
+                    .alpha(if (state.isPaused) 0.5f else 1f)
             ) {
                 Text(
                     text = "+10 seconds",
@@ -120,7 +150,11 @@ fun RestTimerScreen(
         }
 
         // Skip button
-        TextButton(onClick = onSkipRest) {
+        TextButton(
+            onClick = onSkipRest,
+            enabled = !state.isPaused,
+            modifier = Modifier.alpha(if (state.isPaused) 0.5f else 1f)
+        ) {
             Text(
                 text = "Skip Rest",
                 fontSize = 16.sp,

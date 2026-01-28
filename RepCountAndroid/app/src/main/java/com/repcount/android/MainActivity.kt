@@ -100,7 +100,9 @@ fun RepCountApp(
                     state = state,
                     formatTime = viewModel::formatTime,
                     onCompleteSet = viewModel::completeSet,
-                    onEndWorkout = viewModel::endWorkout
+                    onEndWorkout = viewModel::endWorkout,
+                    onPause = viewModel::pauseWorkout,
+                    onResume = viewModel::resumeWorkout
                 )
 
                 WorkoutScreen.REST -> RestTimerScreen(
@@ -108,7 +110,9 @@ fun RepCountApp(
                     formatTime = viewModel::formatTime,
                     onAddRestTime = viewModel::addRestTime,
                     onSkipRest = viewModel::skipRest,
-                    onEndWorkout = viewModel::endWorkout
+                    onEndWorkout = viewModel::endWorkout,
+                    onPause = viewModel::pauseWorkout,
+                    onResume = viewModel::resumeWorkout
                 )
 
                 WorkoutScreen.SUMMARY -> SummaryScreen(

@@ -2,6 +2,10 @@ package com.repcount.android.wear
 
 import android.app.Application
 import android.content.Context
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
@@ -33,6 +37,9 @@ data class WearWorkoutState(
     // Rest timer
     val restTimeRemaining: Int = 0,
 
+    // Pause state
+    val isPaused: Boolean = false,
+
     // Summary
     val summaryTotalReps: Int = 0,
     val summaryElapsedTime: Int = 0,
@@ -49,11 +56,31 @@ class WearWorkoutViewModel(application: Application) : AndroidViewModel(applicat
 
     private val prefs = application.getSharedPreferences("repcount_wear_prefs", Context.MODE_PRIVATE)
 
+    // Haptics
+    private val vibrator: Vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val vibratorManager = application.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+        vibratorManager.defaultVibrator
+    } else {
+        @Suppress("DEPRECATION")
+        application.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+    }
+
     private val _state = MutableStateFlow(WearWorkoutState())
     val state: StateFlow<WearWorkoutState> = _state.asStateFlow()
 
     private var elapsedTimerJob: Job? = null
     private var restTimerJob: Job? = null
+
+    // Timer precision: track elapsed time using system time snapshots
+    private var elapsedStartTime: Long = 0L
+    private var accumulatedElapsed: Long = 0L
+
+    // Timer precision: track rest timer using system time snapshots
+    private var restStartTime: Long = 0L
+    private var restTargetSeconds: Int = 0
+
+    // Pause state
+    private var pausedRestTimeRemaining: Int = 0
 
     init {
         loadSettings()
@@ -83,12 +110,14 @@ class WearWorkoutViewModel(application: Application) : AndroidViewModel(applicat
 
     fun startWorkout() {
         saveSettings()
+        accumulatedElapsed = 0L
         _state.value = _state.value.copy(
             currentScreen = WearScreen.ACTIVE,
             currentSetNumber = 1,
             completedSets = emptyList(),
             elapsedSeconds = 0
         )
+        playHeavyHaptic()
         startElapsedTimer()
     }
 
@@ -99,6 +128,7 @@ class WearWorkoutViewModel(application: Application) : AndroidViewModel(applicat
             currentScreen = WearScreen.REST,
             restTimeRemaining = _state.value.restSeconds
         )
+        playHeavyHaptic()
         startRestTimer()
     }
 
@@ -148,43 +178,127 @@ class WearWorkoutViewModel(application: Application) : AndroidViewModel(applicat
 
     private fun startRestTimer() {
         stopRestTimer()
+        restStartTime = System.currentTimeMillis()
+        restTargetSeconds = _state.value.restTimeRemaining
+
         restTimerJob = viewModelScope.launch {
-            while (_state.value.restTimeRemaining > 0) {
-                delay(1000)
-                _state.value = _state.value.copy(
-                    restTimeRemaining = _state.value.restTimeRemaining - 1
-                )
+            var previousRemaining = restTargetSeconds
+            while (true) {
+                delay(500)
+                val elapsed = (System.currentTimeMillis() - restStartTime) / 1000
+                val remaining = (restTargetSeconds - elapsed.toInt()).coerceAtLeast(0)
+
+                if (remaining > 0) {
+                    _state.value = _state.value.copy(restTimeRemaining = remaining)
+                    // Haptic feedback for last 3 seconds (only trigger once per second)
+                    if (remaining <= 3 && remaining != previousRemaining) {
+                        playMediumHaptic()
+                    }
+                    previousRemaining = remaining
+                } else {
+                    // Rest complete
+                    playHeavyHaptic()
+                    _state.value = _state.value.copy(
+                        restTimeRemaining = 0,
+                        currentScreen = WearScreen.ACTIVE,
+                        currentSetNumber = _state.value.currentSetNumber + 1
+                    )
+                    break
+                }
             }
-            // Rest complete
-            _state.value = _state.value.copy(
-                currentScreen = WearScreen.ACTIVE,
-                currentSetNumber = _state.value.currentSetNumber + 1
-            )
         }
     }
 
     private fun stopRestTimer() {
         restTimerJob?.cancel()
         restTimerJob = null
+        restStartTime = 0L
+        restTargetSeconds = 0
     }
 
     // MARK: - Elapsed Timer
 
     private fun startElapsedTimer() {
         stopElapsedTimer()
+        elapsedStartTime = System.currentTimeMillis()
+
         elapsedTimerJob = viewModelScope.launch {
             while (true) {
-                delay(1000)
-                _state.value = _state.value.copy(
-                    elapsedSeconds = _state.value.elapsedSeconds + 1
-                )
+                delay(500)
+                val currentElapsed = (System.currentTimeMillis() - elapsedStartTime) / 1000 + accumulatedElapsed / 1000
+                _state.value = _state.value.copy(elapsedSeconds = currentElapsed.toInt())
             }
         }
     }
 
     private fun stopElapsedTimer() {
+        // Accumulate elapsed time before stopping
+        if (elapsedStartTime > 0) {
+            accumulatedElapsed += System.currentTimeMillis() - elapsedStartTime
+        }
+        elapsedStartTime = 0L
         elapsedTimerJob?.cancel()
         elapsedTimerJob = null
+    }
+
+    // MARK: - Pause/Resume
+
+    fun pauseWorkout() {
+        if (_state.value.isPaused) return
+        _state.value = _state.value.copy(isPaused = true)
+
+        // Stop elapsed timer (accumulates time automatically)
+        stopElapsedTimer()
+
+        // If resting, save remaining time and stop rest timer
+        if (_state.value.currentScreen == WearScreen.REST) {
+            pausedRestTimeRemaining = _state.value.restTimeRemaining
+            restTimerJob?.cancel()
+            restTimerJob = null
+        }
+    }
+
+    fun resumeWorkout() {
+        if (!_state.value.isPaused) return
+        _state.value = _state.value.copy(isPaused = false)
+
+        // Resume elapsed timer
+        startElapsedTimer()
+
+        // If was resting, resume rest timer from saved time
+        if (_state.value.currentScreen == WearScreen.REST && pausedRestTimeRemaining > 0) {
+            restStartTime = System.currentTimeMillis()
+            restTargetSeconds = pausedRestTimeRemaining
+            _state.value = _state.value.copy(restTimeRemaining = pausedRestTimeRemaining)
+            pausedRestTimeRemaining = 0
+
+            restTimerJob = viewModelScope.launch {
+                var previousRemaining = restTargetSeconds
+                while (true) {
+                    delay(500)
+                    val elapsed = (System.currentTimeMillis() - restStartTime) / 1000
+                    val remaining = (restTargetSeconds - elapsed.toInt()).coerceAtLeast(0)
+
+                    if (remaining > 0) {
+                        _state.value = _state.value.copy(restTimeRemaining = remaining)
+                        // Haptic feedback for last 3 seconds (only trigger once per second)
+                        if (remaining <= 3 && remaining != previousRemaining) {
+                            playMediumHaptic()
+                        }
+                        previousRemaining = remaining
+                    } else {
+                        // Rest complete
+                        playHeavyHaptic()
+                        _state.value = _state.value.copy(
+                            restTimeRemaining = 0,
+                            currentScreen = WearScreen.ACTIVE,
+                            currentSetNumber = _state.value.currentSetNumber + 1
+                        )
+                        break
+                    }
+                }
+            }
+        }
     }
 
     // MARK: - Persistence
@@ -224,6 +338,26 @@ class WearWorkoutViewModel(application: Application) : AndroidViewModel(applicat
             String.format("%d:%02d:%02d", hours, mins, secs)
         } else {
             String.format("%d:%02d", mins, secs)
+        }
+    }
+
+    // MARK: - Haptics
+
+    private fun playMediumHaptic() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            @Suppress("DEPRECATION")
+            vibrator.vibrate(50)
+        }
+    }
+
+    private fun playHeavyHaptic() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            @Suppress("DEPRECATION")
+            vibrator.vibrate(100)
         }
     }
 }

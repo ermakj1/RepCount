@@ -61,7 +61,9 @@ fun RepCountWearApp(
             state = state,
             formatTime = viewModel::formatTime,
             onCompleteSet = viewModel::completeSet,
-            onEndWorkout = viewModel::endWorkout
+            onEndWorkout = viewModel::endWorkout,
+            onPause = viewModel::pauseWorkout,
+            onResume = viewModel::resumeWorkout
         )
 
         WearScreen.REST -> WearRestScreen(
@@ -69,7 +71,9 @@ fun RepCountWearApp(
             formatTime = viewModel::formatTime,
             onAddRestTime = viewModel::addRestTime,
             onSkipRest = viewModel::skipRest,
-            onEndWorkout = viewModel::endWorkout
+            onEndWorkout = viewModel::endWorkout,
+            onPause = viewModel::pauseWorkout,
+            onResume = viewModel::resumeWorkout
         )
 
         WearScreen.SUMMARY -> WearSummaryScreen(

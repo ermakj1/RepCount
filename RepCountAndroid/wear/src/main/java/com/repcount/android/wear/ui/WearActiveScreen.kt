@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -24,7 +25,9 @@ fun WearActiveScreen(
     state: WearWorkoutState,
     formatTime: (Int) -> String,
     onCompleteSet: (Int) -> Unit,
-    onEndWorkout: () -> Unit
+    onEndWorkout: () -> Unit,
+    onPause: () -> Unit,
+    onResume: () -> Unit
 ) {
     var adjustedReps by remember { mutableIntStateOf(state.targetReps) }
 
@@ -71,15 +74,39 @@ fun WearActiveScreen(
             }
         }
 
+        // Pause/Resume button
+        item {
+            Button(
+                onClick = { if (state.isPaused) onResume() else onPause() },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (state.isPaused) Color(0xFF4CAF50) else Color.Gray
+                ),
+                modifier = Modifier.height(32.dp)
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = if (state.isPaused) "Resume" else "Pause",
+                        fontSize = 11.sp
+                    )
+                }
+            }
+        }
+
         // Rep adjuster
         item {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.padding(vertical = 8.dp)
+                modifier = Modifier
+                    .padding(vertical = 8.dp)
+                    .alpha(if (state.isPaused) 0.5f else 1f)
             ) {
                 FilledIconButton(
                     onClick = { if (adjustedReps > 0) adjustedReps-- },
+                    enabled = !state.isPaused,
                     colors = IconButtonDefaults.filledIconButtonColors(
                         containerColor = Color(0xFFE57373)
                     ),
@@ -98,6 +125,7 @@ fun WearActiveScreen(
 
                 FilledIconButton(
                     onClick = { adjustedReps++ },
+                    enabled = !state.isPaused,
                     colors = IconButtonDefaults.filledIconButtonColors(
                         containerColor = Color(0xFF81C784)
                     ),
@@ -115,10 +143,13 @@ fun WearActiveScreen(
                     onCompleteSet(adjustedReps)
                     adjustedReps = state.targetReps
                 },
+                enabled = !state.isPaused,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF4A90D9)
                 ),
-                modifier = Modifier.fillMaxWidth(0.8f)
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .alpha(if (state.isPaused) 0.5f else 1f)
             ) {
                 Box(
                     modifier = Modifier.fillMaxSize(),

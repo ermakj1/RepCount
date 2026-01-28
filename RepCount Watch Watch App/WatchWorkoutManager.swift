@@ -36,6 +36,10 @@ class WatchWorkoutManager: ObservableObject {
     @Published var isResting: Bool = false
     @Published var restTimeRemaining: Int = 0
 
+    // Pause state
+    @Published var isPaused: Bool = false
+    private var pausedRestTimeRemaining: Int = 0
+
     // MARK: - Computed
 
     var completedReps: Int {
@@ -56,6 +60,14 @@ class WatchWorkoutManager: ObservableObject {
     private var restTimer: Timer?
     private var elapsedTimer: Timer?
     private var workoutStartTime: Date?
+
+    // Timer precision: track elapsed time using Date snapshots
+    private var elapsedTimerStartDate: Date?
+    private var accumulatedElapsedTime: TimeInterval = 0
+
+    // Timer precision: track rest timer using Date snapshots
+    private var restTimerStartDate: Date?
+    private var restTimerTargetSeconds: Int = 0
 
     // Persistence keys
     private let targetRepsKey = "watch_targetReps"
@@ -91,6 +103,7 @@ class WatchWorkoutManager: ObservableObject {
         currentSetNumber = 1
         completedSets = []
         elapsedSeconds = 0
+        accumulatedElapsedTime = 0
         workoutStartTime = Date()
         saveSettings()
         playHaptic(.start)
@@ -99,14 +112,23 @@ class WatchWorkoutManager: ObservableObject {
 
     private func startElapsedTimer() {
         elapsedTimer?.invalidate()
-        elapsedTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+        elapsedTimerStartDate = Date()
+
+        elapsedTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
             Task { @MainActor in
-                self?.elapsedSeconds += 1
+                guard let self = self, let startDate = self.elapsedTimerStartDate else { return }
+                let currentElapsed = Date().timeIntervalSince(startDate) + self.accumulatedElapsedTime
+                self.elapsedSeconds = Int(currentElapsed)
             }
         }
     }
 
     private func stopElapsedTimer() {
+        // Accumulate elapsed time before stopping
+        if let startDate = elapsedTimerStartDate {
+            accumulatedElapsedTime += Date().timeIntervalSince(startDate)
+        }
+        elapsedTimerStartDate = nil
         elapsedTimer?.invalidate()
         elapsedTimer = nil
     }
@@ -167,16 +189,24 @@ class WatchWorkoutManager: ObservableObject {
         stopRestTimer()
         isResting = true
         restTimeRemaining = seconds
+        restTimerStartDate = Date()
+        restTimerTargetSeconds = seconds
 
-        restTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+        restTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
             Task { @MainActor in
-                guard let self = self else { return }
-                if self.restTimeRemaining > 0 {
-                    self.restTimeRemaining -= 1
-                    if self.restTimeRemaining <= 3 && self.restTimeRemaining > 0 {
+                guard let self = self, let startDate = self.restTimerStartDate else { return }
+                let elapsed = Date().timeIntervalSince(startDate)
+                let remaining = self.restTimerTargetSeconds - Int(elapsed)
+                let previousRemaining = self.restTimeRemaining
+
+                if remaining > 0 {
+                    self.restTimeRemaining = remaining
+                    // Haptic feedback for last 3 seconds (only trigger once per second)
+                    if remaining <= 3 && remaining != previousRemaining {
                         self.playHaptic(.click)
                     }
                 } else {
+                    self.restTimeRemaining = 0
                     self.playHaptic(.notification)
                     self.restTimerEnded()
                 }
@@ -187,6 +217,8 @@ class WatchWorkoutManager: ObservableObject {
     private func restTimerEnded() {
         restTimer?.invalidate()
         restTimer = nil
+        restTimerStartDate = nil
+        restTimerTargetSeconds = 0
         isResting = false
         restTimeRemaining = 0
         currentSetNumber += 1
@@ -195,6 +227,8 @@ class WatchWorkoutManager: ObservableObject {
     func stopRestTimer() {
         restTimer?.invalidate()
         restTimer = nil
+        restTimerStartDate = nil
+        restTimerTargetSeconds = 0
         isResting = false
         restTimeRemaining = 0
     }
@@ -207,9 +241,65 @@ class WatchWorkoutManager: ObservableObject {
 
     func addRestTime(_ seconds: Int) {
         restTimeRemaining += seconds
+        restTimerTargetSeconds += seconds
         restSeconds += seconds
         saveSettings()
         playHaptic(.click)
+    }
+
+    // MARK: - Pause/Resume
+
+    func pauseWorkout() {
+        guard !isPaused else { return }
+        isPaused = true
+        playHaptic(.click)
+
+        // Stop elapsed timer (accumulates time automatically)
+        stopElapsedTimer()
+
+        // If resting, save remaining time and stop rest timer
+        if isResting {
+            pausedRestTimeRemaining = restTimeRemaining
+            restTimer?.invalidate()
+            restTimer = nil
+        }
+    }
+
+    func resumeWorkout() {
+        guard isPaused else { return }
+        isPaused = false
+        playHaptic(.click)
+
+        // Resume elapsed timer
+        startElapsedTimer()
+
+        // If was resting, resume rest timer from saved time
+        if isResting && pausedRestTimeRemaining > 0 {
+            restTimerStartDate = Date()
+            restTimerTargetSeconds = pausedRestTimeRemaining
+            restTimeRemaining = pausedRestTimeRemaining
+            pausedRestTimeRemaining = 0
+
+            restTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+                Task { @MainActor in
+                    guard let self = self, let startDate = self.restTimerStartDate else { return }
+                    let elapsed = Date().timeIntervalSince(startDate)
+                    let remaining = self.restTimerTargetSeconds - Int(elapsed)
+                    let previousRemaining = self.restTimeRemaining
+
+                    if remaining > 0 {
+                        self.restTimeRemaining = remaining
+                        if remaining <= 3 && remaining != previousRemaining {
+                            self.playHaptic(.click)
+                        }
+                    } else {
+                        self.restTimeRemaining = 0
+                        self.playHaptic(.notification)
+                        self.restTimerEnded()
+                    }
+                }
+            }
+        }
     }
 
     // MARK: - Persistence

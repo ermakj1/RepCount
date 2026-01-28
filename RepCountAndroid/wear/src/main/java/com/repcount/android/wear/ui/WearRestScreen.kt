@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -20,7 +21,9 @@ fun WearRestScreen(
     formatTime: (Int) -> String,
     onAddRestTime: (Int) -> Unit,
     onSkipRest: () -> Unit,
-    onEndWorkout: () -> Unit
+    onEndWorkout: () -> Unit,
+    onPause: () -> Unit,
+    onResume: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -43,20 +46,42 @@ fun WearRestScreen(
 
         Spacer(modifier = Modifier.height(4.dp))
 
-        // REST label
+        // REST/PAUSED label
         Text(
-            text = "REST",
+            text = if (state.isPaused) "PAUSED" else "REST",
             fontSize = 16.sp,
             fontWeight = FontWeight.Black,
-            color = Color(0xFFFF9800)
+            color = if (state.isPaused) Color.Gray else Color(0xFFFF9800)
         )
 
         // Timer
         Text(
             text = formatTime(state.restTimeRemaining),
             fontSize = 40.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.alpha(if (state.isPaused) 0.5f else 1f)
         )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // Pause/Resume button
+        Button(
+            onClick = { if (state.isPaused) onResume() else onPause() },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (state.isPaused) Color(0xFF4CAF50) else Color.Gray
+            ),
+            modifier = Modifier.height(28.dp)
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = if (state.isPaused) "Resume" else "Pause",
+                    fontSize = 10.sp
+                )
+            }
+        }
 
         // Next set
         Text(
@@ -74,10 +99,13 @@ fun WearRestScreen(
             if (state.restTimeRemaining <= 10) {
                 Button(
                     onClick = { onAddRestTime(10) },
+                    enabled = !state.isPaused,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFFF9800)
                     ),
-                    modifier = Modifier.height(32.dp)
+                    modifier = Modifier
+                        .height(32.dp)
+                        .alpha(if (state.isPaused) 0.5f else 1f)
                 ) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -90,10 +118,13 @@ fun WearRestScreen(
 
             Button(
                 onClick = onSkipRest,
+                enabled = !state.isPaused,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF4A90D9)
                 ),
-                modifier = Modifier.height(32.dp)
+                modifier = Modifier
+                    .height(32.dp)
+                    .alpha(if (state.isPaused) 0.5f else 1f)
             ) {
                 Box(
                     modifier = Modifier.fillMaxSize(),

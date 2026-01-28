@@ -10,6 +10,15 @@ import SwiftUI
 struct HistoryView: View {
     @EnvironmentObject var manager: WorkoutManager
     @State private var showClearConfirmation = false
+    @State private var displayedCount: Int = 20
+
+    private var displayedWorkouts: [WorkoutSession] {
+        Array(manager.workoutHistory.prefix(displayedCount))
+    }
+
+    private var hasMore: Bool {
+        displayedCount < manager.workoutHistory.count
+    }
 
     var body: some View {
         NavigationStack {
@@ -72,11 +81,27 @@ struct HistoryView: View {
 
             // Workout list
             Section("Recent Workouts") {
-                ForEach(manager.workoutHistory) { session in
+                ForEach(displayedWorkouts) { session in
                     WorkoutHistoryRow(session: session)
                 }
                 .onDelete { indexSet in
-                    manager.workoutHistory.remove(atOffsets: indexSet)
+                    // Convert indices from displayed workouts to full history
+                    let indicesToDelete = IndexSet(indexSet.map { $0 })
+                    manager.workoutHistory.remove(atOffsets: indicesToDelete)
+                }
+
+                // Load More button
+                if hasMore {
+                    Button {
+                        displayedCount += 20
+                    } label: {
+                        HStack {
+                            Spacer()
+                            Text("Load More (\(manager.workoutHistory.count - displayedCount) remaining)")
+                                .font(.subheadline)
+                            Spacer()
+                        }
+                    }
                 }
             }
         }

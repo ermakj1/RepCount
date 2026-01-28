@@ -9,6 +9,11 @@ import SwiftUI
 
 @main
 struct RepCountApp: App {
+    init() {
+        // Request notification permission on launch
+        NotificationManager.shared.requestPermission()
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()

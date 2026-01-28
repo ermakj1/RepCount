@@ -189,6 +189,23 @@ struct WatchActiveView: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
 
+                // Pause/Resume button
+                Button {
+                    if manager.isPaused {
+                        manager.resumeWorkout()
+                    } else {
+                        manager.pauseWorkout()
+                    }
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: manager.isPaused ? "play.fill" : "pause.fill")
+                        Text(manager.isPaused ? "Resume" : "Pause")
+                    }
+                    .font(.caption)
+                }
+                .buttonStyle(.bordered)
+                .tint(manager.isPaused ? .green : .gray)
+
                 // Rep adjuster
                 HStack {
                     Button {
@@ -200,6 +217,7 @@ struct WatchActiveView: View {
                     }
                     .buttonStyle(.bordered)
                     .tint(.red)
+                    .disabled(manager.isPaused)
 
                     Text("\(adjustedReps)")
                         .font(.system(size: 44, weight: .bold, design: .rounded))
@@ -212,7 +230,9 @@ struct WatchActiveView: View {
                     }
                     .buttonStyle(.bordered)
                     .tint(.green)
+                    .disabled(manager.isPaused)
                 }
+                .opacity(manager.isPaused ? 0.5 : 1.0)
 
                 // Done button
                 Button {
@@ -225,6 +245,8 @@ struct WatchActiveView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(.blue)
+                .disabled(manager.isPaused)
+                .opacity(manager.isPaused ? 0.5 : 1.0)
 
                 // End workout
                 Button {
@@ -265,12 +287,30 @@ struct WatchRestView: View {
                 .font(.caption2)
                 .foregroundStyle(manager.isGoalComplete ? .green : .secondary)
 
-            Text("REST")
+            Text(manager.isPaused ? "PAUSED" : "REST")
                 .font(.headline)
-                .foregroundStyle(.orange)
+                .foregroundStyle(manager.isPaused ? .gray : .orange)
 
             Text(manager.formatTime(manager.restTimeRemaining))
                 .font(.system(size: 48, weight: .bold, design: .rounded))
+                .opacity(manager.isPaused ? 0.5 : 1.0)
+
+            // Pause/Resume button
+            Button {
+                if manager.isPaused {
+                    manager.resumeWorkout()
+                } else {
+                    manager.pauseWorkout()
+                }
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: manager.isPaused ? "play.fill" : "pause.fill")
+                    Text(manager.isPaused ? "Resume" : "Pause")
+                }
+                .font(.caption)
+            }
+            .buttonStyle(.bordered)
+            .tint(manager.isPaused ? .green : .gray)
 
             Text("Next: Set \(manager.currentSetNumber + 1)")
                 .font(.caption2)
@@ -286,6 +326,8 @@ struct WatchRestView: View {
                     }
                     .buttonStyle(.bordered)
                     .tint(.orange)
+                    .disabled(manager.isPaused)
+                    .opacity(manager.isPaused ? 0.5 : 1.0)
                 }
 
                 Button {
@@ -296,6 +338,8 @@ struct WatchRestView: View {
                 }
                 .buttonStyle(.bordered)
                 .tint(.blue)
+                .disabled(manager.isPaused)
+                .opacity(manager.isPaused ? 0.5 : 1.0)
             }
 
             Button {

@@ -36,6 +36,10 @@ class WorkoutManager: ObservableObject {
     @Published var isResting: Bool = false
     @Published var restTimeRemaining: Int = 0
 
+    // Pause state
+    @Published var isPaused: Bool = false
+    private var pausedRestTimeRemaining: Int = 0
+
     // Interval timer
     @Published var isIntervalTimerRunning: Bool = false
     @Published var intervalTimeRemaining: Int = 0
@@ -54,6 +58,14 @@ class WorkoutManager: ObservableObject {
     private var workoutStartTime: Date?
     private let haptics = UIImpactFeedbackGenerator(style: .medium)
     private let heavyHaptics = UIImpactFeedbackGenerator(style: .heavy)
+
+    // Timer precision: track elapsed time using Date snapshots
+    private var elapsedTimerStartDate: Date?
+    private var accumulatedElapsedTime: TimeInterval = 0
+
+    // Timer precision: track rest timer using Date snapshots
+    private var restTimerStartDate: Date?
+    private var restTimerTargetSeconds: Int = 0
 
     // MARK: - Computed
 
@@ -117,6 +129,7 @@ class WorkoutManager: ObservableObject {
         currentSetNumber = 1
         completedSets = []
         elapsedSeconds = 0
+        accumulatedElapsedTime = 0
         workoutStartTime = Date()
         saveSettings()
         heavyHaptics.impactOccurred()
@@ -130,14 +143,23 @@ class WorkoutManager: ObservableObject {
 
     private func startElapsedTimer() {
         elapsedTimer?.invalidate()
-        elapsedTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+        elapsedTimerStartDate = Date()
+
+        elapsedTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
             Task { @MainActor in
-                self?.elapsedSeconds += 1
+                guard let self = self, let startDate = self.elapsedTimerStartDate else { return }
+                let currentElapsed = Date().timeIntervalSince(startDate) + self.accumulatedElapsedTime
+                self.elapsedSeconds = Int(currentElapsed)
             }
         }
     }
 
     private func stopElapsedTimer() {
+        // Accumulate elapsed time before stopping
+        if let startDate = elapsedTimerStartDate {
+            accumulatedElapsedTime += Date().timeIntervalSince(startDate)
+        }
+        elapsedTimerStartDate = nil
         elapsedTimer?.invalidate()
         elapsedTimer = nil
     }
@@ -203,16 +225,27 @@ class WorkoutManager: ObservableObject {
         stopRestTimer()
         isResting = true
         restTimeRemaining = seconds
+        restTimerStartDate = Date()
+        restTimerTargetSeconds = seconds
 
-        restTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+        // Schedule background notification
+        NotificationManager.shared.scheduleRestTimerNotification(seconds: seconds, setNumber: currentSetNumber)
+
+        restTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
             Task { @MainActor in
-                guard let self = self else { return }
-                if self.restTimeRemaining > 0 {
-                    self.restTimeRemaining -= 1
-                    if self.restTimeRemaining <= 3 && self.restTimeRemaining > 0 {
+                guard let self = self, let startDate = self.restTimerStartDate else { return }
+                let elapsed = Date().timeIntervalSince(startDate)
+                let remaining = self.restTimerTargetSeconds - Int(elapsed)
+                let previousRemaining = self.restTimeRemaining
+
+                if remaining > 0 {
+                    self.restTimeRemaining = remaining
+                    // Haptic feedback for last 3 seconds (only trigger once per second)
+                    if remaining <= 3 && remaining != previousRemaining {
                         self.haptics.impactOccurred()
                     }
                 } else {
+                    self.restTimeRemaining = 0
                     self.heavyHaptics.impactOccurred()
                     self.restTimerEnded()
                 }
@@ -223,29 +256,96 @@ class WorkoutManager: ObservableObject {
     private func restTimerEnded() {
         restTimer?.invalidate()
         restTimer = nil
+        restTimerStartDate = nil
+        restTimerTargetSeconds = 0
         isResting = false
         restTimeRemaining = 0
         currentSetNumber += 1
+
+        // Cancel notification since we're handling it in-app
+        NotificationManager.shared.cancelRestTimerNotification()
     }
 
     func stopRestTimer() {
         restTimer?.invalidate()
         restTimer = nil
+        restTimerStartDate = nil
+        restTimerTargetSeconds = 0
         isResting = false
         restTimeRemaining = 0
+
+        // Cancel background notification
+        NotificationManager.shared.cancelRestTimerNotification()
     }
 
     func skipRest() {
         stopRestTimer()
         currentSetNumber += 1
+        haptics.impactOccurred()
     }
 
     func addRestTime(_ seconds: Int) {
         restTimeRemaining += seconds
+        restTimerTargetSeconds += seconds
         // Also increase future rest duration
         restSeconds += seconds
         saveSettings()
         haptics.impactOccurred()
+    }
+
+    // MARK: - Pause/Resume
+
+    func pauseWorkout() {
+        guard !isPaused else { return }
+        isPaused = true
+        haptics.impactOccurred()
+
+        // Stop elapsed timer (accumulates time automatically)
+        stopElapsedTimer()
+
+        // If resting, save remaining time and stop rest timer
+        if isResting {
+            pausedRestTimeRemaining = restTimeRemaining
+            restTimer?.invalidate()
+            restTimer = nil
+        }
+    }
+
+    func resumeWorkout() {
+        guard isPaused else { return }
+        isPaused = false
+        haptics.impactOccurred()
+
+        // Resume elapsed timer
+        startElapsedTimer()
+
+        // If was resting, resume rest timer from saved time
+        if isResting && pausedRestTimeRemaining > 0 {
+            restTimerStartDate = Date()
+            restTimerTargetSeconds = pausedRestTimeRemaining
+            restTimeRemaining = pausedRestTimeRemaining
+            pausedRestTimeRemaining = 0
+
+            restTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+                Task { @MainActor in
+                    guard let self = self, let startDate = self.restTimerStartDate else { return }
+                    let elapsed = Date().timeIntervalSince(startDate)
+                    let remaining = self.restTimerTargetSeconds - Int(elapsed)
+                    let previousRemaining = self.restTimeRemaining
+
+                    if remaining > 0 {
+                        self.restTimeRemaining = remaining
+                        if remaining <= 3 && remaining != previousRemaining {
+                            self.haptics.impactOccurred()
+                        }
+                    } else {
+                        self.restTimeRemaining = 0
+                        self.heavyHaptics.impactOccurred()
+                        self.restTimerEnded()
+                    }
+                }
+            }
+        }
     }
 
     // MARK: - Interval Timer
