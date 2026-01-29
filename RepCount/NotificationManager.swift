@@ -9,7 +9,7 @@ import Foundation
 import UserNotifications
 
 @MainActor
-class NotificationManager: ObservableObject {
+class NotificationManager {
     static let shared = NotificationManager()
 
     private let notificationCenter = UNUserNotificationCenter.current()
