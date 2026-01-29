@@ -106,10 +106,13 @@ class WorkoutManager: ObservableObject {
             forName: .workoutReceivedFromWatch,
             object: nil,
             queue: .main
-        ) { [weak self] notification in
-            if let session = notification.userInfo?["session"] as? WorkoutSession {
-                self?.workoutHistory.insert(session, at: 0)
-                self?.saveHistory()
+        ) { notification in
+            // Extract session before Task to avoid capturing non-Sendable Notification
+            guard let session = notification.userInfo?["session"] as? WorkoutSession else { return }
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                self.workoutHistory.insert(session, at: 0)
+                self.saveHistory()
             }
         }
     }
@@ -145,9 +148,9 @@ class WorkoutManager: ObservableObject {
         elapsedTimer?.invalidate()
         elapsedTimerStartDate = Date()
 
-        elapsedTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                guard let self = self, let startDate = self.elapsedTimerStartDate else { return }
+        elapsedTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
+            Task { @MainActor [weak self] in
+                guard let self, let startDate = self.elapsedTimerStartDate else { return }
                 let currentElapsed = Date().timeIntervalSince(startDate) + self.accumulatedElapsedTime
                 self.elapsedSeconds = Int(currentElapsed)
             }
@@ -231,9 +234,9 @@ class WorkoutManager: ObservableObject {
         // Schedule background notification
         NotificationManager.shared.scheduleRestTimerNotification(seconds: seconds, setNumber: currentSetNumber)
 
-        restTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                guard let self = self, let startDate = self.restTimerStartDate else { return }
+        restTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
+            Task { @MainActor [weak self] in
+                guard let self, let startDate = self.restTimerStartDate else { return }
                 let elapsed = Date().timeIntervalSince(startDate)
                 let remaining = self.restTimerTargetSeconds - Int(elapsed)
                 let previousRemaining = self.restTimeRemaining
@@ -326,9 +329,9 @@ class WorkoutManager: ObservableObject {
             restTimeRemaining = pausedRestTimeRemaining
             pausedRestTimeRemaining = 0
 
-            restTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
-                Task { @MainActor in
-                    guard let self = self, let startDate = self.restTimerStartDate else { return }
+            restTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
+                Task { @MainActor [weak self] in
+                    guard let self, let startDate = self.restTimerStartDate else { return }
                     let elapsed = Date().timeIntervalSince(startDate)
                     let remaining = self.restTimerTargetSeconds - Int(elapsed)
                     let previousRemaining = self.restTimeRemaining
@@ -361,8 +364,8 @@ class WorkoutManager: ObservableObject {
 
         heavyHaptics.impactOccurred()
 
-        intervalTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            Task { @MainActor in
+        intervalTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+            Task { @MainActor [weak self] in
                 self?.tickIntervalTimer()
             }
         }
