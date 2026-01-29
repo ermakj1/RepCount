@@ -164,7 +164,7 @@ fun ActiveWorkoutScreen(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Quick complete button
+        // Quick complete button - larger for easy tapping when tired
         Button(
             onClick = {
                 onCompleteSet(state.targetReps)
@@ -173,18 +173,18 @@ fun ActiveWorkoutScreen(
             enabled = !state.isPaused,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
+                .height(100.dp)
                 .alpha(if (state.isPaused) 0.5f else 1f),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
         ) {
             Text(
                 text = "Done: +${state.targetReps} reps",
-                fontSize = 18.sp,
+                fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
             )
         }
 
-        // Adjusted reps button (if different)
+        // Adjusted reps button (if different) - also larger for easy tapping
         if (adjustedReps != state.targetReps && adjustedReps > 0) {
             Spacer(modifier = Modifier.height(12.dp))
             Button(
@@ -192,13 +192,13 @@ fun ActiveWorkoutScreen(
                 enabled = !state.isPaused,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp)
+                    .height(80.dp)
                     .alpha(if (state.isPaused) 0.5f else 1f),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF9800))
             ) {
                 Text(
                     text = "Done: +$adjustedReps reps",
-                    fontSize = 16.sp,
+                    fontSize = 22.sp,
                     fontWeight = FontWeight.Bold
                 )
             }

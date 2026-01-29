@@ -103,35 +103,35 @@ struct ActiveWorkoutView: View {
 
             Spacer()
 
-            // Quick complete button (target reps)
+            // Quick complete button (target reps) - larger for easy tapping when tired
             Button {
                 manager.completeSet(reps: manager.targetReps)
                 adjustedReps = manager.targetReps
             } label: {
                 Text("Done: +\(manager.targetReps) reps")
-                    .font(.title2.bold())
+                    .font(.title.bold())
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 18)
+                    .padding(.vertical, 36)
                     .background(Color.blue)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
             }
             .padding(.horizontal, 24)
             .disabled(manager.isPaused)
             .opacity(manager.isPaused ? 0.5 : 1.0)
 
-            // Submit adjusted reps if different
+            // Submit adjusted reps if different - also larger for easy tapping
             if adjustedReps != manager.targetReps && adjustedReps > 0 {
                 Button {
                     manager.completeSet(reps: adjustedReps)
                 } label: {
                     Text("Done: +\(adjustedReps) reps")
-                        .font(.headline)
+                        .font(.title2.bold())
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
+                        .padding(.vertical, 28)
                         .background(Color.orange)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
                 .padding(.horizontal, 24)
                 .disabled(manager.isPaused)
