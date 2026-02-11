@@ -21,9 +21,11 @@ class NotificationManager {
 
     func requestPermission() {
         notificationCenter.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+            #if DEBUG
             if let error = error {
                 print("Notification permission error: \(error.localizedDescription)")
             }
+            #endif
         }
     }
 
@@ -43,9 +45,11 @@ class NotificationManager {
         let request = UNNotificationRequest(identifier: restTimerNotificationId, content: content, trigger: trigger)
 
         notificationCenter.add(request) { error in
+            #if DEBUG
             if let error = error {
                 print("Failed to schedule notification: \(error.localizedDescription)")
             }
+            #endif
         }
     }
 

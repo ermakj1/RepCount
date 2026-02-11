@@ -42,9 +42,7 @@ class PhoneConnectivityManager: NSObject, ObservableObject {
 
         // Also try direct message if reachable
         if WCSession.default.isReachable {
-            WCSession.default.sendMessage(data, replyHandler: nil) { error in
-                print("Error sending workout: \(error.localizedDescription)")
-            }
+            WCSession.default.sendMessage(data, replyHandler: nil) { _ in }
         }
     }
 }

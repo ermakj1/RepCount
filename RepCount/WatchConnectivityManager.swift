@@ -38,9 +38,7 @@ class WatchConnectivityManager: NSObject, ObservableObject {
             "targetTotalReps": targetTotalReps
         ]
 
-        WCSession.default.sendMessage(message, replyHandler: nil) { error in
-            print("Error sending settings: \(error.localizedDescription)")
-        }
+        WCSession.default.sendMessage(message, replyHandler: nil) { _ in }
     }
 
     private func sendSettingsViaContext(targetReps: Int, restSeconds: Int, targetTotalReps: Int) {
@@ -54,7 +52,9 @@ class WatchConnectivityManager: NSObject, ObservableObject {
         do {
             try WCSession.default.updateApplicationContext(context)
         } catch {
+            #if DEBUG
             print("Error updating context: \(error.localizedDescription)")
+            #endif
         }
     }
 }
